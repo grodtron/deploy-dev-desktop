@@ -2,4 +2,5 @@ aws-cdk.core~=1.165
 boto3>=1.24
 more-itertools>=8.13
 pytest>=7.1
-fabric
+fabric>=2.7
+mock>=4.0

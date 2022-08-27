@@ -1,4 +1,4 @@
-from deploy import DevDesktopBooter, get_ec2_client
+from deploy import DevDesktopBooter, get_ec2_client, make_ssh_connection
 import argparse
 import sys
 import os
@@ -17,7 +17,7 @@ def main():
     logging.basicConfig()
     opts = get_opts(sys.argv[1:])
 
-    booter = DevDesktopBooter(get_ec2_client(opts.region))
+    booter = DevDesktopBooter(get_ec2_client(opts.region), make_ssh_connection)
 
     booter.instiate_personal_dev_desktop(opts.instance_type, 'PersonalDevDesktopTemplate')
 

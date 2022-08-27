@@ -15,9 +15,14 @@ def get_ec2_client(region):
     return boto3.client("ec2", region_name=region)
 
 
+def make_ssh_connection(*args, **kwargs):
+    return Connection(*args, **kwargs)
+
+
 class DevDesktopBooter:
-    def __init__(self, ec2):
+    def __init__(self, ec2, make_ssh_connection):
         self.ec2 = ec2
+        self.make_ssh_connection = make_ssh_connection
 
 
     def wait_for_instance(self, instance_id):
@@ -68,7 +73,7 @@ class DevDesktopBooter:
 
         instance_ip = self.get_instance_public_ip(instance_id)
 
-        with Connection(instance_ip, user='ubuntu', connect_kwargs={"pkey": pkey}) as c:
+        with self.make_ssh_connection(instance_ip, user='ubuntu', connect_kwargs={"pkey": pkey}) as c:
             logger.info("Cloning bootstrap repo")
             c.run('git clone https://github.com/grodtron/bootstrap-dev-desktop.git')
             with c.cd('bootstrap-dev-desktop'):

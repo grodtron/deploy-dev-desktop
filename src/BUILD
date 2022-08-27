@@ -18,7 +18,7 @@ py_library(
 py_pytest_test(
     name = "test",
     srcs = ["deploy_test.py"],
-    deps = [":deploy", requirement("pytest")]
+    deps = [":deploy", requirement("pytest"), requirement("mock")]
 )
 
 py_binary(
