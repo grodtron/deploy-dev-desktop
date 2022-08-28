@@ -1,5 +1,9 @@
 {
 "dependencies":{
-"aws-cdk": "*"
-}
+"aws-cdk": "*",
+"patch-package": "^6.4.7"
+},
+ "scripts": {
+       "postinstall": "patch-package"
+ }
 }

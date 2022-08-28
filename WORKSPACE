@@ -77,5 +77,12 @@ npm_install(
     node_repository = "node16",
     package_json = "//:package.json",
     package_lock_json = "//:package-lock.json",
+    # We need to patch the cdk binary, so that `cdk init` works correctly. As it
+    # is, when run under `bazel run`, before running a node_modules/ folder is
+    # created, but `cdk init` needs to run in a completely empty directory. This
+    # patch considers a directory with only node_modules/ to be empty.
+    post_install_patches = [
+        "//patches:aws-cdk.patch"
+    ],
 )
 

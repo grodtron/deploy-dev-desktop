@@ -1,0 +1,11 @@
+--- node_modules/aws-cdk/lib/index.js	2022-08-28 11:54:40.556874380 +0000
++++ node_modules/aws-cdk/lib/index.js	2022-08-28 11:52:43.916257935 +0000
+@@ -939534,7 +939534,7 @@
+ }
+ async function assertIsEmptyDirectory(workDir) {
+   const files = await fs25.readdir(workDir);
+-  if (files.filter((f) => !f.startsWith(".")).length !== 0) {
++  if (files.filter((f) => !(f.startsWith(".") || f.startsWith("node_modules"))).length !== 0) {
+     throw new Error("`cdk init` cannot be run in a non-empty directory!");
+   }
+ }
