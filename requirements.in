@@ -1,4 +1,4 @@
-aws-cdk.core~=1.165
+aws-cdk-lib~=2.39
 boto3>=1.24
 more-itertools>=8.13
 pytest>=7.1

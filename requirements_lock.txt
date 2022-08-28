@@ -11,24 +11,10 @@ attrs==21.4.0 \
     #   cattrs
     #   jsii
     #   pytest
-aws-cdk-cloud-assembly-schema==1.165.0 \
-    --hash=sha256:e1cceaa9cc368da56cf6d977fcbe215ed2252d7c6f333400841a62493cc619c4 \
-    --hash=sha256:f6e989c6a8f0a782bd80062ad44f22ba7d8105441e8954455fc7d958cf1de129
-    # via
-    #   aws-cdk-core
-    #   aws-cdk-cx-api
-aws-cdk-core==1.165.0 \
-    --hash=sha256:c9ad2eaac3bb4935d7e7cf147a5ca34d4588a889a5e990801447a8e354df8feb \
-    --hash=sha256:ffd7082e72c41e0332125710b539928210c4a056e5da1d4e30c17fcd97e63878
+aws-cdk-lib==2.39.0 \
+    --hash=sha256:17fa6a78b6ec6f4ab2ce655f565d9f799f37afa8ca03ff78675e61f30ca6ef79 \
+    --hash=sha256:4a4bc7798e73f527f1fb1bf8033da3c15f272ed91c07ef886b8f0713f96c5dc5
     # via -r requirements.in
-aws-cdk-cx-api==1.165.0 \
-    --hash=sha256:48646f18d6f3c22e9c44838fb6b2c45e1a5fb1a80803ac9db01c18034c8b6b00 \
-    --hash=sha256:93c2e46b25c9b02daebde6d281a3dfeabe5d077320b772ab608c17f29112a502
-    # via aws-cdk-core
-aws-cdk-region-info==1.165.0 \
-    --hash=sha256:b32c157ae2e4a02ec5281e946709cdf0f4b7a87278a9fb1cf815371667315125 \
-    --hash=sha256:cd3d6e6f4e3ea7312d4733639747f1acfce09a54f7a145559b2487970a462ae1
-    # via aws-cdk-core
 bcrypt==3.2.2 \
     --hash=sha256:2b02d6bfc6336d1094276f3f588aa1225a598e27f8e3388f4db9948cb707b521 \
     --hash=sha256:433c410c2177057705da2a9f2cd01dd157493b2a7ac14c8593a16b3dab6b6bfb \
@@ -125,10 +111,10 @@ cffi==1.15.1 \
     #   bcrypt
     #   cryptography
     #   pynacl
-constructs==3.4.51 \
-    --hash=sha256:1e3e1700904d597b303157cf0942a07a1d9cf55b182c5f1fe663ac398e754a99 \
-    --hash=sha256:c88804a06a55c6483a7291b62551b6f48a447da5cd70880cc4a27cfe815022e0
-    # via aws-cdk-core
+constructs==10.1.89 \
+    --hash=sha256:129945a8a95a5d22a517b14dee45d4f8a9bcf12adbef75a99045c73fc1d258e7 \
+    --hash=sha256:990c80d37c4f6874053ba3379f18d7febdd5481834e7824972aebf3e3c3e3d46
+    # via aws-cdk-lib
 cryptography==37.0.4 \
     --hash=sha256:190f82f3e87033821828f60787cfa42bff98404483577b591429ed99bed39d59 \
     --hash=sha256:2be53f9f5505673eeda5f2736bea736c40f051a739bfae2f92d18aed1eb54596 \
@@ -175,14 +161,11 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-jsii==1.63.0 \
-    --hash=sha256:17eb038947e21c5981607ccd0bb114a60d7340f9ea3f81ca5c784287e6de55f7 \
-    --hash=sha256:6ea2f30d61444bee9c9adee192913ef165d49bf691398241fea36719bd8bc1d9
+jsii==1.65.0 \
+    --hash=sha256:47b939259ec465bc044aed6d3288b9b27a8edef2af21f1a8448e297b8429f154 \
+    --hash=sha256:a09ef1f9864fe27457ba4233b3a0744a76d2562077d5b8b3a7f2242edc4a8293
     # via
-    #   aws-cdk-cloud-assembly-schema
-    #   aws-cdk-core
-    #   aws-cdk-cx-api
-    #   aws-cdk-region-info
+    #   aws-cdk-lib
     #   constructs
 mock==4.0.3 \
     --hash=sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62 \
@@ -212,10 +195,7 @@ publication==0.0.3 \
     --hash=sha256:0248885351febc11d8a1098d5c8e3ab2dabcf3e8c0c96db1e17ecd12b53afbe6 \
     --hash=sha256:68416a0de76dddcdd2930d1c8ef853a743cc96c82416c4e4d3b5d901c6276dc4
     # via
-    #   aws-cdk-cloud-assembly-schema
-    #   aws-cdk-core
-    #   aws-cdk-cx-api
-    #   aws-cdk-region-info
+    #   aws-cdk-lib
     #   constructs
     #   jsii
 py==1.11.0 \
@@ -271,6 +251,7 @@ typeguard==2.13.3 \
     --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
     --hash=sha256:5e3e3be01e887e7eafae5af63d1f36c849aaa94e3a0112097312aabfa16284f1
     # via
+    #   aws-cdk-lib
     #   constructs
     #   jsii
 typing-extensions==4.3.0 \
