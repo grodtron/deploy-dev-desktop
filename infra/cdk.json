@@ -33,8 +33,7 @@
     "@aws-cdk/aws-apigateway:disableCloudWatchRole": true,
     "@aws-cdk/core:enablePartitionLiterals": true,
     "@aws-cdk/core:target-partitions": [
-      "aws",
-      "aws-cn"
+      "aws"
     ]
   }
 }
