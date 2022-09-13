@@ -47,6 +47,6 @@ genrule(
         "@node16_host//:node"
     ],
     outs = ["list.txt"],
-    cmd = "BAZEL_NODE_BINARY=$(location @node16_host//:node) $(location @npm//aws-cdk/bin:cdk) --app /bin/false list | tee $(location :list.txt)"
-    # cmd = "BAZEL_NODE_BINARY=$(location @node16_host//:node) $(location @npm//aws-cdk/bin:cdk) --app $(location //infra:app) list | tee $(location :list.txt)"
+    # cmd = "BAZEL_NODE_BINARY=$(location @node16_host//:node) $(location @npm//aws-cdk/bin:cdk) --app /bin/false list | tee $(location :list.txt)"
+    cmd = "BAZEL_NODE_BINARY=$(location @node16_host//:node) $(location @npm//aws-cdk/bin:cdk) --app $(location //infra:app) list | tee $(location :list.txt)"
 )
