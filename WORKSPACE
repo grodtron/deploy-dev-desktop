@@ -52,37 +52,38 @@ rules_python_pytest_dependencies()
 
 ### Node JS (for CDK) ###
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "c78216f5be5d451a42275b0b7dc809fb9347e2b04a68f68bad620a2b01f5c774",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/5.5.2/rules_nodejs-5.5.2.tar.gz"],
+    name = "aspect_rules_js",
+    sha256 = "e3e6c3d42491e2938f4239a3d04259a58adc83e21e352346ad4ef62f87e76125",
+    strip_prefix = "rules_js-1.30.0",
+    url = "https://github.com/aspect-build/rules_js/releases/download/v1.30.0/rules_js-v1.30.0.tar.gz",
 )
 
-load("@build_bazel_rules_nodejs//:repositories.bzl", "build_bazel_rules_nodejs_dependencies")
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
-build_bazel_rules_nodejs_dependencies()
+rules_js_dependencies()
 
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
-# The order matters because Bazel will provide the first registered toolchain when a rule asks Bazel to select it
-# This applies to the resolved_toolchain
+load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains")
+
 nodejs_register_toolchains(
-    name = "node16",
-    node_version = "16.5.0",
+    name = "nodejs",
+    node_version = DEFAULT_NODE_VERSION,
 )
 
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install")
+load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
 
-npm_install(
+npm_translate_lock(
     name = "npm",
-    node_repository = "node16",
-    package_json = "//:package.json",
-    package_lock_json = "//:package-lock.json",
-    # We need to patch the cdk binary, so that `cdk init` works correctly. As it
-    # is, when run under `bazel run`, before running a node_modules/ folder is
-    # created, but `cdk init` needs to run in a completely empty directory. This
-    # patch considers a directory with only node_modules/ to be empty.
-    post_install_patches = [
-        "//patches:aws-cdk.patch"
-    ],
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
 )
 
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()
+
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")

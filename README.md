@@ -4,10 +4,10 @@ to update pip dependencies
 bazel run //:requirements.update
 ```
 
-to update NPM packages (WIP):
+to update NPM packages:
 
 ```
-bazel run @nodejs_host//:npm -- update
+bazel run -- @pnpm//:pnpm i --dir $PWD --lockfile-only
 ```
 
 to invoke the `cdk` tool:
