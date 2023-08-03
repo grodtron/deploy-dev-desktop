@@ -1,4 +1,7 @@
 bazel-*
+builds
 *.swp
 node_modules
 __pycache__
+.terraform
+terraform.tfstate
