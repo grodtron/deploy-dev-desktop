@@ -1,12 +1,22 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "9f38886a40548c6e96c106b752f242130ee11aaa068a56ba7e56f4511f33e4f2",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.6.1/bazel-skylib-1.6.1.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.6.1/bazel-skylib-1.6.1.tar.gz",
+    ],
+)
+
+
 ### Python ###
 
 http_archive(
     name = "rules_python",
-    sha256 = "a3a6e99f497be089f81ec082882e40246bfd435f52f4e82f37e89449b04573f6",
-    strip_prefix = "rules_python-0.10.2",
-    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.10.2.tar.gz",
+    sha256 = "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
+    strip_prefix = "rules_python-0.25.0",
+    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.25.0.tar.gz",
 )
 
 load("@rules_python//python:repositories.bzl", "python_register_toolchains")
@@ -25,6 +35,10 @@ load("@rules_python//python:pip.bzl", "pip_parse")
 pip_parse(
    name = "pypi",
    python_interpreter_target = interpreter,
+   # Platform arg is needed to ensure we are looking for the versions of GLIBC, etc. that
+   # area available on AWS Lambda
+   download_only = True,
+   extra_pip_args = ["--platform", "manylinux2014_x86_64"],
    requirements_lock = "//:requirements_lock.txt",
 )
 

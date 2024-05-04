@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.48"
     }
   }
 }
@@ -28,7 +28,8 @@ resource "aws_iam_policy" "CreateEC2Istances" {
           Action = [
             "ec2:Describe*",
             "ec2:RunInstances",
-            "ec2:CreateKeyPair"
+            "ec2:CreateKeyPair",
+            "iam:PassRole",
           ],
           Effect = "Allow"
           Resource = ["*"]
@@ -37,6 +38,28 @@ resource "aws_iam_policy" "CreateEC2Istances" {
     }
   )
 }
+
+resource "aws_launch_template" "DevDesktopTemplate" {
+  name = "DevDesktopTemplate"
+
+  image_id = "ami-0705384c0b33c194c"
+  update_default_version = true
+
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      volume_size = 30
+      delete_on_termination = true
+      volume_type = "gp2"
+    }
+  }
+
+  iam_instance_profile {
+    arn = "arn:aws:iam::911866154296:instance-profile/PersonalDevDesktopRole"
+  }
+}
+
 
 resource "aws_iam_role" "DevDesktopBooterExecutionRole" {
   name = "DevDesktopBooterExecutionRole"
@@ -54,16 +77,41 @@ resource "aws_iam_role" "DevDesktopBooterExecutionRole" {
 
 resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRoleAtch" {
   policy_arn = data.aws_iam_policy.AWSLambdaBasicExecutionRole.arn
-  role = aws_iam_role.LambdaExecutionRole.name
+  role = aws_iam_role.DevDesktopBooterExecutionRole.name
 }
 
 resource "aws_iam_role_policy_attachment" "CreateEC2IstancesAtch" {
   policy_arn = aws_iam_policy.CreateEC2Istances.arn
-  role = aws_iam_role.LambdaExecutionRole.name
+  role = aws_iam_role.DevDesktopBooterExecutionRole.name
+}
+
+resource "aws_s3_bucket" "lambda_bucket" {
+  bucket = "deploy-dev-desktop--lambda-deployment"  # Update with your desired bucket name
 }
 
 
-resource "aws_lambda_function" "example" {
+resource "aws_s3_object" "lambda_zip" {
+  bucket = aws_s3_bucket.lambda_bucket.id
+  key    = "dev-desktop-booter.zip"
+  source = "bazel-bin/src/deployment_archive.zip"
+  etag = filemd5("bazel-bin/src/deployment_archive.zip")
+}
+
+
+resource "aws_lambda_function" "DevDesktopBooterLambda" {
   function_name = "DevDesktopBooter"
   role = aws_iam_role.DevDesktopBooterExecutionRole.arn
+  handler = "src.main.lambda_handler"
+  runtime = "python3.10"
+  s3_bucket = aws_s3_object.lambda_zip.bucket
+  s3_key = aws_s3_object.lambda_zip.key
+  source_code_hash = filemd5("bazel-bin/src/deployment_archive.zip")
+  timeout = 900
+  memory_size = 512
+
+  environment {
+    variables = {
+      LAUNCH_TEMPLATE_NAME = aws_launch_template.DevDesktopTemplate.name
+    }
+  }
 }
