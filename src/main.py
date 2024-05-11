@@ -25,6 +25,7 @@ def main():
 def lambda_handler(x, y):
 
     logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
     opts = get_opts(sys.argv[1:])
 
     print(x)
@@ -32,7 +33,7 @@ def lambda_handler(x, y):
 
     booter = DevDesktopBooter(get_ec2_client("eu-north-1"), make_ssh_connection)
 
-    booter.instiate_personal_dev_desktop("t2.xlarge", os.getenv("LAUNCH_TEMPLATE_NAME"))
+    booter.instiate_personal_dev_desktop("t3.large", os.getenv("LAUNCH_TEMPLATE_NAME"))
 
 
 

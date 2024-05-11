@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
 def get_ec2_client(region):
     return boto3.client("ec2", region_name=region)
 
@@ -73,7 +74,7 @@ class DevDesktopBooter:
 
         instance_ip = self.get_instance_public_ip(instance_id)
 
-        with self.make_ssh_connection(instance_ip, user='ubuntu', connect_kwargs={"pkey": pkey}) as c:
+        with self.make_ssh_connection(instance_ip, user='ubuntu', connect_timeout=15*60,  connect_kwargs={"pkey": pkey}) as c:
             logger.info("Cloning bootstrap repo")
             c.run('git clone https://github.com/grodtron/bootstrap-dev-desktop.git')
             with c.cd('bootstrap-dev-desktop'):

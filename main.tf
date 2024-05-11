@@ -39,11 +39,38 @@ resource "aws_iam_policy" "CreateEC2Istances" {
   )
 }
 
+# Get latest Ubuntu Linux Disco 20.04 AMI
+data "aws_ami" "ubuntu-linux-2204" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.0.0/16"
+}
+
 resource "aws_launch_template" "DevDesktopTemplate" {
   name = "DevDesktopTemplate"
 
-  image_id = "ami-0705384c0b33c194c"
+  image_id = data.aws_ami.ubuntu-linux-2204.id
   update_default_version = true
+
+  iam_instance_profile {
+    arn = "arn:aws:iam::911866154296:instance-profile/PersonalDevDesktopRole"
+  }
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -55,9 +82,13 @@ resource "aws_launch_template" "DevDesktopTemplate" {
     }
   }
 
-  iam_instance_profile {
-    arn = "arn:aws:iam::911866154296:instance-profile/PersonalDevDesktopRole"
+  network_interfaces {
+    subnet_id = aws_subnet.main.id
+    delete_on_termination = true
+    associate_public_ip_address = true
   }
+
+
 }
 
 
