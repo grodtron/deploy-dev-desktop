@@ -7,15 +7,22 @@ from fabric.testing.fixtures import connection as fabric_mock_connection
 from pytest import fixture
 
 @fixture
+def route53():
+    real_route53 = botocore.session.get_session().create_client('route53', region_name='eu-west-1')
+    return Stubber(real_route53), real_route53
+
+
+@fixture
 def ec2():
     real_ec2 = botocore.session.get_session().create_client('ec2', region_name='eu-west-1')
     return Stubber(real_ec2), real_ec2
 
 
-def test_happy_path(ec2, fabric_mock_connection):
+def test_happy_path(ec2, route53, fabric_mock_connection):
     ec2_stubber, ec2_client = ec2
+    route53_stubber, route53_client = route53
 
-    sut = DevDesktopBooter(ec2_client, lambda *args, **kwargs: fabric_mock_connection)
+    sut = DevDesktopBooter(ec2_client, route53_client, lambda *args, **kwargs: fabric_mock_connection)
 
     instance_type = 'Foo.nano'
     instance_id = "foobar_instance"
@@ -73,19 +80,75 @@ WQ304bYvGGWGib3q2PJnAAAAFmdvcmRvbkBpcC0xNzItMzEtNDUtOTcBAgMEBQYH
                 'InstanceIds': [instance_id]
         })
 
+    public_ip = "12.34.56.78"
 
     ec2_stubber.add_response('describe_instances',
         {
             "Reservations": [{
                 "Instances": [{
-                    "PublicIpAddress": "12.34.56.78"
+                    "PublicIpAddress": public_ip
                 }]
             }]
         }, {
                 'InstanceIds': [instance_id]
         })
 
-
     ec2_stubber.activate()
+
+    fake_zone_id = "ABCD123456789"
+    domain_name = "gbgbgb.click."
+
+    route53_stubber.add_response('list_hosted_zones_by_name',
+        {
+            'HostedZones': [
+                {
+                    'Id': f'/hostedzone/{fake_zone_id}',
+                    'Name': domain_name,
+                    'CallerReference': 'some-reference',
+                    'Config': {
+                        'PrivateZone': False
+                    },
+                    'ResourceRecordSetCount': 5
+                }
+            ],
+            'IsTruncated': False,
+            'MaxItems': '100'
+        },
+        {
+            'DNSName': domain_name
+        }
+    )
+
+    route53_stubber.add_response('change_resource_record_sets',
+        {
+            'ChangeInfo': {
+                'Id': f'/change/{fake_zone_id}',
+                'Status': 'PENDING',
+                'SubmittedAt': '2023-04-27T12:00:00Z',
+                'Comment': 'Update record to point to EC2 instance'
+            }
+        },
+        {
+            'HostedZoneId': fake_zone_id,
+            'ChangeBatch': {
+                'Comment': 'Update record to point to EC2 instance',
+                'Changes': [
+                    {
+                        'Action': 'UPSERT',
+                        'ResourceRecordSet': {
+                            'Name': domain_name,
+                            'Type': 'A',
+                            'TTL': 300,
+                            'ResourceRecords': [
+                                {'Value': public_ip}
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    )
+
+    route53_stubber.activate()
 
     assert sut.instiate_personal_dev_desktop(instance_type, launch_template_name) == instance_id

@@ -15,14 +15,17 @@ logger = logging.getLogger(__name__)
 def get_ec2_client(region):
     return boto3.client("ec2", region_name=region)
 
+def get_route53_client(region):
+    return boto3.client("route53", region_name=region)
 
 def make_ssh_connection(*args, **kwargs):
     return Connection(*args, **kwargs)
 
 
 class DevDesktopBooter:
-    def __init__(self, ec2, make_ssh_connection):
+    def __init__(self, ec2, route53, make_ssh_connection):
         self.ec2 = ec2
+        self.route53 = route53
         self.make_ssh_connection = make_ssh_connection
 
 
@@ -39,7 +42,38 @@ class DevDesktopBooter:
     def get_instance_public_ip(self, instance_id):
         result = self.ec2.describe_instances(InstanceIds=[instance_id])
 
+        logger.debug(result)
+
         return one(one(result["Reservations"])["Instances"])["PublicIpAddress"]
+
+
+    def update_dns(self, public_ip, domain_name):
+        if not domain_name.endswith('.'):
+            domain_name += '.'
+
+        result = self.route53.list_hosted_zones_by_name(DNSName=domain_name)
+
+        logger.debug(result)
+
+        hosted_zone_id = one(result["HostedZones"])['Id'].split('/')[-1]
+
+        self.route53.change_resource_record_sets(
+            HostedZoneId=hosted_zone_id,
+            ChangeBatch={
+                'Comment': 'Update record to point to EC2 instance',
+                'Changes': [
+                    {
+                        'Action': 'UPSERT',  # UPSERT means "update or insert"
+                        'ResourceRecordSet': {
+                            'Name': domain_name,
+                            'Type': 'A',
+                            'TTL': 300,  # 5 minutes
+                            'ResourceRecords': [{'Value': public_ip}]
+                        }
+                    }
+                ]
+            }
+        )
 
 
     def instiate_personal_dev_desktop(self, instance_type, launch_template_name):
@@ -80,6 +114,8 @@ class DevDesktopBooter:
             with c.cd('bootstrap-dev-desktop'):
                 logger.info("running bootstrap.sh")
                 c.run('./bootstrap.sh')
+
+        zone_id = self.update_dns(instance_ip, 'gbgbgb.click')
 
         return created_instance['InstanceId']
 

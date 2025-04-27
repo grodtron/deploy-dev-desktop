@@ -1,4 +1,4 @@
-from src.deploy import DevDesktopBooter, get_ec2_client, make_ssh_connection
+from src.deploy import DevDesktopBooter, get_ec2_client, get_route53_client, make_ssh_connection
 import argparse
 import sys
 import os
@@ -17,7 +17,7 @@ def main():
     logging.basicConfig()
     opts = get_opts(sys.argv[1:])
 
-    booter = DevDesktopBooter(get_ec2_client(opts.region), make_ssh_connection)
+    booter = DevDesktopBooter(get_ec2_client(opts.region), get_route53_client(opts.region),  make_ssh_connection)
 
     booter.instiate_personal_dev_desktop(opts.instance_type, 'PersonalDevDesktopTemplate')
 
@@ -31,8 +31,10 @@ def lambda_handler(x, y):
     print(x)
     print(y)
 
-    booter = DevDesktopBooter(get_ec2_client("eu-north-1"), make_ssh_connection)
+    # TODO get region from lambda env
+    booter = DevDesktopBooter(get_ec2_client("eu-north-1"), get_route53_client("eu-north-1"), make_ssh_connection)
 
+    # TODO get instance type from env
     booter.instiate_personal_dev_desktop("t3.large", os.getenv("LAUNCH_TEMPLATE_NAME"))
 
 
