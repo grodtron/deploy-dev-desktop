@@ -35,7 +35,7 @@ def lambda_handler(x, y):
     booter = DevDesktopBooter(get_ec2_client("eu-north-1"), get_route53_client("eu-north-1"), make_ssh_connection)
 
     # TODO get instance type from env
-    booter.instiate_personal_dev_desktop("t3.large", os.getenv("LAUNCH_TEMPLATE_NAME"))
+    booter.instiate_personal_dev_desktop("t3.medium", os.getenv("LAUNCH_TEMPLATE_NAME"))
 
 
 
