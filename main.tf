@@ -29,6 +29,7 @@ resource "aws_iam_policy" "CreateEC2Istances" {
             "ec2:Describe*",
             "ec2:RunInstances",
             "ec2:CreateKeyPair",
+            "route53:*",
             "iam:PassRole",
           ],
           Effect = "Allow"
