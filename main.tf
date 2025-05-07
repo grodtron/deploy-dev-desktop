@@ -174,7 +174,7 @@ resource "aws_lambda_function" "DevDesktopBooterLambda" {
   function_name = "DevDesktopBooter"
   role = aws_iam_role.DevDesktopBooterExecutionRole.arn
   handler = "src.main.lambda_handler"
-  runtime = "python3.10"
+  runtime = "python3.12"
   s3_bucket = aws_s3_object.lambda_zip.bucket
   s3_key = aws_s3_object.lambda_zip.key
   source_code_hash = filemd5("bazel-bin/src/deployment_archive.zip")
