@@ -7,10 +7,12 @@ on:
 
 jobs:
 
-  bazel-setup:
+  update-requirements-and-terraform-plan:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      id-token: write
+      contents: write # To make a commit
+      pull-requests: write # To post a comment
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,13 +24,6 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
     
-  update-requirements-lock:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Required to push changes
-    needs:
-      - bazel-setup
-    steps:
       - name: Update requirements lock with Bazel
         run: bazel run //:requirements.update
 
@@ -39,16 +34,6 @@ jobs:
           author_email: bazel@example.com
           message: "Update requirements lockfile"
 
-  terraform-plan:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-    needs:
-      - bazel-setup
-      - update-requirements-lock
-    steps:
       - name: Build with Bazel
         run: bazel build //src:deployment_archive
 
