@@ -1,4 +1,4 @@
-name: Terraform Plan
+name: Pull Request
 
 on:
   pull_request:
@@ -6,16 +6,16 @@ on:
       - '**/*'
 
 jobs:
-  terraform:
+
+  update-requirements-and-terraform-plan:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
-      pull-requests: write
-
+      contents: write # To make a commit
+      pull-requests: write # To post a comment
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Bazel
         uses: bazel-contrib/setup-bazel@0.14.0
@@ -23,6 +23,16 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+    
+      - name: Update requirements lock with Bazel
+        run: bazel run //:requirements.update
+
+      - name: Commit Changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: Bazel Requirements
+          author_email: bazel@example.com
+          message: "Update requirements lockfile"
 
       - name: Build with Bazel
         run: bazel build //src:deployment_archive
