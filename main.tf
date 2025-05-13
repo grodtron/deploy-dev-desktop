@@ -110,6 +110,8 @@ resource "aws_launch_template" "DevDesktopTemplate" {
   image_id = data.aws_ami.ubuntu-linux-2204.id
   update_default_version = true
 
+  instance_initiated_shutdown_behavior = "terminate"
+
   iam_instance_profile {
     arn = "arn:aws:iam::911866154296:instance-profile/PersonalDevDesktopRole"
   }
