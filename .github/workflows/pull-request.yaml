@@ -52,6 +52,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Commit Terraform Changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: Terraform lockfile
+          author_email: terraform@example.com
+          message: "Update terraform lockfile"
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
